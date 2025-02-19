@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AppMvc.Data;
 using AppMvc.Models;
 
 namespace AppMvc.Controllers
 {
+    [Route("meus-alunos")]
     public class AlunosController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -19,16 +15,18 @@ namespace AppMvc.Controllers
             _context = context;
         }
 
-        // GET: Alunos
+        //Rota padrão
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Aluno.ToListAsync());
+            return _context.Aluno  != null ?
+                    View(await _context.Aluno.ToListAsync()) :
+                    Problem("Entity set 'ApplicationDbContext.Aluno' is null.");
         }
 
-        // GET: Alunos/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [Route("detalhes/{id:int}")]
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
+            if (_context.Aluno == null)
             {
                 return NotFound();
             }
@@ -43,18 +41,15 @@ namespace AppMvc.Controllers
             return View(aluno);
         }
 
-        // GET: Alunos/Create
+        [Route("novo")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Alunos/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("novo")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,DataNascimento,Email,Avaliacao,Ativo")] Aluno aluno)
+        public async Task<IActionResult> Create([Bind("Id,Nome,DataNascimento,Email,EmailConfirmacao,Avaliacao,Ativo")] Aluno aluno)
         {
             if (ModelState.IsValid)
             {
@@ -65,14 +60,9 @@ namespace AppMvc.Controllers
             return View(aluno);
         }
 
-        // GET: Alunos/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [Route("editar/{id:int}")]
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var aluno = await _context.Aluno.FindAsync(id);
             if (aluno == null)
             {
@@ -81,10 +71,7 @@ namespace AppMvc.Controllers
             return View(aluno);
         }
 
-        // POST: Alunos/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("editar/{id:int}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,DataNascimento,Email,Avaliacao,Ativo")] Aluno aluno)
         {
@@ -116,14 +103,9 @@ namespace AppMvc.Controllers
             return View(aluno);
         }
 
-        // GET: Alunos/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        [Route("excluir/{id:int}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var aluno = await _context.Aluno
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (aluno == null)
@@ -134,8 +116,9 @@ namespace AppMvc.Controllers
             return View(aluno);
         }
 
-        // POST: Alunos/Delete/5
-        [HttpPost, ActionName("Delete")]
+        
+        [HttpPost("excluir/{id:int}")] 
+        [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
