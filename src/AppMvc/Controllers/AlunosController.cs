@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using AppMvc.Data;
 using AppMvc.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace AppMvc.Controllers
 {
@@ -18,7 +19,7 @@ namespace AppMvc.Controllers
         //Rota padrão
         public async Task<IActionResult> Index()
         {
-            return _context.Aluno  != null ?
+			return _context.Aluno != null ?
                     View(await _context.Aluno.ToListAsync()) :
                     Problem("Entity set 'ApplicationDbContext.Aluno' is null.");
         }
@@ -41,6 +42,9 @@ namespace AppMvc.Controllers
             return View(aluno);
         }
 
+
+
+
         [Route("novo")]
         public IActionResult Create()
         {
@@ -59,6 +63,9 @@ namespace AppMvc.Controllers
             }
             return View(aluno);
         }
+
+
+
 
         [Route("editar/{id:int}")]
         public async Task<IActionResult> Edit(int id)
@@ -79,6 +86,8 @@ namespace AppMvc.Controllers
             {
                 return NotFound();
             }
+
+            ModelState.Remove("EmailConfirmacao");
 
             if (ModelState.IsValid)
             {
@@ -103,6 +112,9 @@ namespace AppMvc.Controllers
             return View(aluno);
         }
 
+
+
+
         [Route("excluir/{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -115,7 +127,6 @@ namespace AppMvc.Controllers
 
             return View(aluno);
         }
-
         
         [HttpPost("excluir/{id:int}")] 
         [ActionName("Delete")]
@@ -131,6 +142,9 @@ namespace AppMvc.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+
+
 
         private bool AlunoExists(int id)
         {
