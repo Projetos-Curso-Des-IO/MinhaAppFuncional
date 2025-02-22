@@ -3,26 +3,34 @@ using Microsoft.EntityFrameworkCore;
 using AppMvc.Data;
 using AppMvc.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.AspNetCore.Authorization;
+
+//Email : teste@email.com - FH-V9!!7JeYvWL5
 
 namespace AppMvc.Controllers
 {
+    [Authorize]
     [Route("meus-alunos")]
     public class AlunosController : Controller
     {
         private readonly ApplicationDbContext _context;
-
         public AlunosController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        //Rota padrão
+        
+
+
+
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
+			ViewData["Sucesso"] = "Listagem gerada com sucesso!";
 			return _context.Aluno != null ?
                     View(await _context.Aluno.ToListAsync()) :
                     Problem("Entity set 'ApplicationDbContext.Aluno' is null.");
-        }
+		}
 
         [Route("detalhes/{id:int}")]
         public async Task<IActionResult> Details(int id)
@@ -38,7 +46,6 @@ namespace AppMvc.Controllers
             {
                 return NotFound();
             }
-
             return View(aluno);
         }
 
@@ -59,7 +66,9 @@ namespace AppMvc.Controllers
             {
                 _context.Add(aluno);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+				TempData["Sucesso"] = "Aluno cadastrado com sucesso!";
+				return RedirectToAction(nameof(Index));
             }
             return View(aluno);
         }
@@ -75,7 +84,7 @@ namespace AppMvc.Controllers
             {
                 return NotFound();
             }
-            return View(aluno);
+			return View(aluno);
         }
 
         [HttpPost("editar/{id:int}")]
@@ -107,6 +116,7 @@ namespace AppMvc.Controllers
                         throw;
                     }
                 }
+				TempData["Sucesso"] = "Aluno editado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
             return View(aluno);
@@ -140,6 +150,8 @@ namespace AppMvc.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            TempData["Sucesso"] = "Aluno excluído com sucesso!";
             return RedirectToAction(nameof(Index));
         }
 
